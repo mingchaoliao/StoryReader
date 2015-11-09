@@ -14,6 +14,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
+import com.warrenstrange.googleauth.GoogleAuthenticator;
+import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
+
 
 /*
  * Database Schema
@@ -28,21 +31,14 @@ import java.util.Scanner;
  * +---------+----------------+------+-----+---------+----------------+
  * 
  * user
- * +----------+----------------+------+-----+---------+----------------+
- * | Field    | Type           | Null | Key | Default | Extra          |
- * +----------+----------------+------+-----+---------+----------------+
- * | uid      | int(11)        | NO   | PRI | NULL    | auto_increment |
- * | username | varbinary(100) | NO   |     | NULL    |                |
- * | password | varbinary(100) | NO   |     | NULL    |                |
- * +----------+----------------+------+-----+---------+----------------+
- * 
- * session
- * +-------+----------------+------+-----+---------+-------+
- * | Field | Type           | Null | Key | Default | Extra |
- * +-------+----------------+------+-----+---------+-------+
- * | uid   | int(11)        | NO   | MUL | NULL    |       |
- * | sid   | varbinary(300) | NO   |     | NULL    |       |
- * +-------+----------------+------+-----+---------+-------+
+ * +-----------+----------------+------+-----+---------+----------------+
+ * | Field     | Type           | Null | Key | Default | Extra          |
+ * +-----------+----------------+------+-----+---------+----------------+
+ * | uid       | int(11)        | NO   | PRI | NULL    | auto_increment |
+ * | username  | varbinary(100) | NO   |     | NULL    |                |
+ * | password  | varbinary(100) | NO   |     | NULL    |                |
+ * | secretkey | varbinary(50)  | YES  |     | NULL    |                |
+ * +-----------+----------------+------+-----+---------+----------------+
  * 
  */
 
@@ -89,11 +85,20 @@ public class SQL_Handler {
 	// authenticate user and password
 	// if match, return user id
 	// if not, return -1
-	public static int authenticate(String username, String password) throws SQLException, UnsupportedEncodingException {
+	public static int authenticate(String username, String password, String sec) throws SQLException, UnsupportedEncodingException {
+		int verify = 0;
+		try {
+			verify = Integer.parseInt(sec);
+		} catch(Exception e) {
+			return -1;
+		}
+		
 		password = computeHash(password);
 		ResultSet rs = executeQuery("select * from user where username='"+username+"' and password='"+password+"'");
 		if(rs.next()) {
-			return Integer.parseInt(rs.getString("uid"));
+			int id = Integer.parseInt(rs.getString("uid"));
+			String secretkey = rs.getString("secretkey");
+			return (new GoogleAuthenticator().authorize(secretkey, verify)) ? id : -1;
 		} else {
 			return -1;
 		}
@@ -101,8 +106,10 @@ public class SQL_Handler {
 
 	//do a registration (ONLY for TEST now)
 	public static boolean register(String username, String password) throws SQLException, UnsupportedEncodingException {
+		//get googleAuth secret key
+		String k = new GoogleAuthenticator().createCredentials().getKey();
 		password = computeHash(password);
-		String sql = "insert into user(username,password) values('"+username+"', '"+password+"');";
+		String sql = "insert into user(username,password, secretkey) values('"+username+"', '"+password+"','"+k+"');";
 		int rs = executeUpdate(sql);
 		return rs > 0;
 	}

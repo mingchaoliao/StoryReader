@@ -35,7 +35,6 @@ public class Login extends HttpServlet {
 		try {
 			//do initialization
 			init(request, response);
-			
 			//process get request
 			get(request,response);
 		} catch(Exception e) {
@@ -43,18 +42,18 @@ public class Login extends HttpServlet {
 			response.sendRedirect(response.encodeRedirectURL("error.html"));
 		}	
 	}
-	
+
 	private void get(HttpServletRequest req, HttpServletResponse res) throws TemplateNotFoundException, MalformedTemplateNameException, ParseException, IOException, TemplateException, SQLException {
 		marker.put("button", "");
-		marker.put("list",loginForm(res,"","",""));
+		marker.put("list",loginForm(res,"","","",""));
 		marker.process(session, out);
 	}
-	
+
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
 			// do initialization
 			init(request, response);
-			
+
 			// handle post request
 			post(request,response);
 		} catch(Exception e) {
@@ -66,30 +65,32 @@ public class Login extends HttpServlet {
 	private void post(HttpServletRequest req, HttpServletResponse res) throws TemplateNotFoundException, MalformedTemplateNameException, ParseException, IOException, TemplateException, SQLException {
 		String user = req.getParameter("user");
 		String pwd = req.getParameter("pwd");
+		String sec = req.getParameter("sec");
+
+		boolean usererr=false,pwderr=false,secerr=false;
 		
-		if(user == null || user.equals("")) { // check if user did not enter username
+		if(user == null || user.equals("")) usererr = true;
+		if(pwd == null || pwd.equals("")) pwderr = true;
+		if(sec == null || sec.equals("")) secerr = true;
+		
+		if(usererr || pwderr || secerr) {
 			marker.put("button", "");
-			String s = "";
-			if(pwd == null || pwd.equals("")) s = "<p style='color:red;display:inline;'>Please enter Password</p>";
-			marker.put("list",loginForm(res,"<p style='color:red;display:inline;'>Please enter username</p>",s,""));
-			marker.process(session,out);
-		} else if(pwd == null || pwd.equals("")) { // check if user did not enter password
-			
-			marker.put("button", "");
-			marker.put("list",loginForm(res,"","<p style='color:red;display:inline;'>Please enter Password</p>",""));
-			marker.process(session,out);
-		} else { // check if username and password does not match
-			int uid = sql.authenticate(user, pwd);
+			marker.put("list", loginForm(res, usererr?"<p style='color:red;display:inline;'>Please enter username</p>":""
+				, pwderr?"<p style='color:red;display:inline;'>Please enter password</p>":""
+					, ""
+						, secerr?"<p style='color:red;display:inline;'>Please enter verification code</p>":""));
+			marker.process(session, out);
+		} else {
+			int uid = sql.authenticate(user, pwd, sec);
 			if(uid == -1) {
-				
 				marker.put("button", "");
-				marker.put("list",loginForm(res,"","","<p style='color:red'>Username or password incorrect</p>"));
+				marker.put("list",loginForm(res,"","","<p style='color:red'>Username or password or verification code incorrect</p>",""));
 				marker.process(session,out);
 			} else { // user signin successfully
 				log.write("Server", "Login successfully, welcome, "+user+" (uid: "+uid+")", req);
 				session.setAttribute("user", user);
 				session.setAttribute("uid", uid);
-				
+
 				//recirect user to "select" page to select book
 				res.sendRedirect(res.encodeRedirectURL("select.html"));
 			}
@@ -112,16 +113,21 @@ public class Login extends HttpServlet {
 		log = Log.getInstance();
 		if(session.getAttribute("user") != null) response.sendRedirect(response.encodeRedirectURL("select.html"));
 	}
-	
+
 	// this method is used to create a login form in html format
-	private String loginForm(HttpServletResponse res, String uerr, String perr, String notmatch) {
+	private String loginForm(HttpServletResponse res, String uerr, String perr, String notmatch, String secerr) {
 		return "<form id='login' method='post' action='"+res.encodeURL("login.html")+"'>" + "\n" +
 				"<label style='height:10%;width:100%;text-align:center;text-size:auto;margin:auto;'>Log In</label>" + "\n" +
 				notmatch +
 				"<label style='height:10%;width:100%;text-align:left;text-size:auto;margin:auto;display:inline;'>Username: "+uerr+"</label>" + "\n" +
-				"<input type='text' name='user' style='height:20%;width:100%;text-align:left;margin:auto;'>" + "\n" +
+				"<input type='text' name='user' style='height:10%;width:100%;text-align:left;margin:auto;'>" + "\n" +
+
 				"<label style='height:10%;width:100%;text-align:left;text-size:auto;margin:auto;display:inline;'>Password: "+perr+"</label>" + "\n" +
-				"<input type='password' name='pwd' style='height:20%;width:100%;text-align:left;margin:auto;'>" + "\n" +
+				"<input type='password' name='pwd' style='height:10%;width:100%;text-align:left;margin:auto;'>" + "\n" +
+
+				"<label style='height:10%;width:100%;text-align:left;text-size:auto;margin:auto;display:inline;'>Verification code: "+secerr+"</label>" + "\n" +
+				"<input type='text' name='sec' style='height:10%;width:100%;text-align:left;margin:auto;'>" + "\n" +
+
 				"<input type='submit' style='height:10%;width:30%;margin:auto;'/>" + "\n" +
 				"</form>";
 	}
