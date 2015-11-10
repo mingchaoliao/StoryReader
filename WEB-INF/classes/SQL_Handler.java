@@ -66,6 +66,7 @@ public class SQL_Handler {
 
 	//use singleton dessign pattern
 	public static SQL_Handler getInstance() {
+		instance = null;
 		if(instance == null) {
 			instance = new SQL_Handler();
 		}
