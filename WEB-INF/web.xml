@@ -48,4 +48,13 @@
     <servlet-name>logout</servlet-name>
     <url-pattern>logout.html</url-pattern>
   </servlet-mapping>
+  <servlet>
+    <servlet-name>rust</servlet-name>
+    <servlet-class>Rust</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>rust</servlet-name>
+    <url-pattern>/storyRust/*</url-pattern>
+  </servlet-mapping>
+
 </web-app>

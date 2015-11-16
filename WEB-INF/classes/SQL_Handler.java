@@ -12,6 +12,7 @@ import java.security.MessageDigest;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Random;
 import java.util.Scanner;
 
 import com.warrenstrange.googleauth.GoogleAuthenticator;
@@ -172,6 +173,29 @@ public class SQL_Handler {
         return sb.toString();
 	}
 
-
+	public static String generateKey(int uid) throws SQLException {
+		Random rnd = new Random(System.currentTimeMillis());
+		String key = "";
+		for(int i = 0; i < 15; i++) {
+			key += ((char) (rnd.nextInt(122-97+1)+97));
+		}
+		key += uid;
+		//System.out.println(key);
+		executeUpdate("update user set rustkey = '"+key+"' where uid = "+uid+";");
+		return key;
+	}
+	
+	public static boolean validateRustKey(String key) throws SQLException {
+		ResultSet re = executeQuery("select * from user where rustkey = '"+key+"';");
+		return re.next();
+	}
+	
+	public static String getBookName(String bid) throws SQLException {
+		ResultSet re = executeQuery("select name from book where bid = "+bid+";");
+		if(re.next()) {
+			return re.getString("name");
+		}
+		return null;
+	}
 
 }

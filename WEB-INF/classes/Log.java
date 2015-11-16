@@ -21,7 +21,9 @@ public class Log {
 	private Log() {}
 	
 	//user singleton design pattern
+	
 	public static Log getInstance() {
+		instance = null;
 		if(instance == null) {
 			instance = new Log();
 		}
