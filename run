@@ -1,0 +1,7 @@
+git pull
+cp WebContent/*.ftl ../
+cp WebContent/WEB-INF/web.xml ../WEB-INF/
+cp lib/* ../WEB-INF/lib/
+cp src/* ../WEB-INF/classes/
+javac -cp .:/opt/jetty/lib/* ../WEB-INF/classes/*.java
+service jetty restart
