@@ -57,13 +57,18 @@ public class FreemarkerHandler {
 	}
 	
 	public static void process(HttpSession session,PrintWriter out) throws TemplateNotFoundException, MalformedTemplateNameException, ParseException, IOException, TemplateException {
+		process(session,out,"template.html");
+	}
+	
+	public static void process(HttpSession session,PrintWriter out, String template) throws TemplateException, IOException {
 		// handle all button stuff, if user has loging, create logout button
 		// if not, create login button
 		if(!root.containsKey("button")) {
 			if(session.getAttribute("user") == null) {
-				root.put("button", "<form method='get' action='login.html' style'width:30%;height:20%;margin:auto;	'><button type='submit' style='height:30%;height:40%;margin:auto;'>Sign In</button></form>");
+				root.put("button","<li><a href='login.html'><span class='glyphicon glyphicon-log-in'></span> Login</a></li>");
 			} else {
-				root.put("button", "<h2 style='color:#00FF00;width:60%;text-size:auto;'>Welcome, "+session.getAttribute("user")+"<h2>" + "<form method='get' action='logout.html' style='width:20%;height:30%;margin:auto;'><button type='submit' style='height:30%;height:40%;margin:auto;'>Logout</button></form>");
+				root.put("button", "<li><a><span class='glyphicon'></span>Welcome, "+session.getAttribute("user")+"</a></li>"
+						+"<li><a href='logout.html'><span class='glyphicon glyphicon-log-out'></span> Logout</a></li>");
 			}
 		}
 		
@@ -71,10 +76,9 @@ public class FreemarkerHandler {
 		if(!root.containsKey("list")) root.put("list", "");
 		if(!root.containsKey("menu")) root.put("menu", "");
 		
-		Template temp = cfg.getTemplate("main.ftl");
+		Template temp = cfg.getTemplate(template);
 		temp.process(root, out);
 		root = new HashMap();
-		
 	}
 
 

@@ -65,6 +65,10 @@ public class Select extends HttpServlet {
 		}
 	
 		Log.getInstance().write("User", "User("+session.getAttribute("user")+") start choose book", req);
+		marker.put("menu", "<div class='list-group'>"
+				+ "<a href='index.html' class='list-group-item'>Home</a>"
+				+ "<a href='storyRust' class='list-group-item'>Rust API</a>"
+				+ "</div>");
 		marker.put("list",list);
 		marker.process(session,out);
 	}
@@ -72,9 +76,29 @@ public class Select extends HttpServlet {
 	// this method is user to create a html form to let user choose book
 	private String createList(ArrayList<String[]> booklist, HttpServletResponse res) {
 		String tem = "<form id='se' method='post' action='"+res.encodeRedirectURL("read.html")+"'>";
+		tem += "<table class='table table-striped'>"
+				+ "<thead>"
+				+ "<tr>"
+				+ "<th>Select</th>"
+				+ "<th>Name</th>"
+				+ "<th>Pages</th>"
+				+ "<th>Author</th>"
+				+ "<th>Publisher</th>"
+				+ "</tr>"
+				+ "</thead>"
+				+ "<tbody>";
+			
 		for(String[] s : booklist) {
-			tem += "<input type='radio' name='bid' value='"+s[0]+"'>"+s[1]+"<br>";
+			tem += "<tr>";
+			tem += "<td><input type='radio' name='bid' value='"+s[0]+"'></td>";
+			tem += "<td>"+s[1]+"</td>";
+			tem += "<td>"+s[4]+"</td>";
+			tem += "<td>"+s[2]+"</td>";
+			tem += "<td>"+s[3]+"</td>";
+			tem += "</tr>";
 		}
+		
+		tem += "</tbody></table>";
 		tem += "<button type='submit' name = 'page' value = '0'>Start Reading</button></form>";
 		return tem;
 	}

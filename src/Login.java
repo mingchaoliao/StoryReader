@@ -44,6 +44,10 @@ public class Login extends HttpServlet {
 	}
 
 	private void get(HttpServletRequest req, HttpServletResponse res) throws TemplateNotFoundException, MalformedTemplateNameException, ParseException, IOException, TemplateException, SQLException {
+		marker.put("menu", "<div class='list-group'>"
+					+ "<a href='index.html' class='list-group-item'>Home</a>"
+					+ "<a href='storyRust' class='list-group-item'>Rust API</a>"
+					+ "</div>");
 		marker.put("button", "");
 		marker.put("list",loginForm(res,"","","",""));
 		marker.process(session, out);
@@ -91,8 +95,8 @@ public class Login extends HttpServlet {
 				session.setAttribute("user", user);
 				session.setAttribute("uid", uid);
 
-				//recirect user to "select" page to select book
-				res.sendRedirect(res.encodeRedirectURL("select.html"));
+				//recirect user to home page
+				res.sendRedirect(res.encodeRedirectURL("index.html"));
 			}
 		}
 	}
@@ -111,24 +115,24 @@ public class Login extends HttpServlet {
 		//get sql handler
 		sql = SQL_Handler.getInstance();
 		log = Log.getInstance();
-		if(session.getAttribute("user") != null) response.sendRedirect(response.encodeRedirectURL("select.html"));
+		if(session.getAttribute("user") != null) response.sendRedirect(response.encodeRedirectURL("index.html"));
 	}
 
 	// this method is used to create a login form in html format
 	private String loginForm(HttpServletResponse res, String uerr, String perr, String notmatch, String secerr) {
-		return "<form id='login' method='post' action='"+res.encodeURL("login.html")+"'>" + "\n" +
-				"<label style='height:10%;width:100%;text-align:center;text-size:auto;margin:auto;'>Log In</label>" + "\n" +
+		return "<form class='form-signin' id='login' method='post' action='"+res.encodeURL("login.html")+"' style='width:400px;'>" + "\n" +
+				"<h2 class='form-signin-heading'>Please sign in</h2>" + "\n" +
 				notmatch +
-				"<label style='height:10%;width:100%;text-align:left;text-size:auto;margin:auto;display:inline;'>Username: "+uerr+"</label>" + "\n" +
-				"<input type='text' name='user' style='height:10%;width:100%;text-align:left;margin:auto;'>" + "\n" +
+				"<br><label class='sr-only'>Username: "+uerr+"</label>" + "\n" +
+				"<input type='text' name='user' class='form-control' placeholder='Username' required>" + "\n" +
 
-				"<label style='height:10%;width:100%;text-align:left;text-size:auto;margin:auto;display:inline;'>Password: "+perr+"</label>" + "\n" +
-				"<input type='password' name='pwd' style='height:10%;width:100%;text-align:left;margin:auto;'>" + "\n" +
+				"<br><label class='sr-only'>Password: "+perr+"</label>" + "\n" +
+				"<input type='password' name='pwd' class='form-control' placeholder='Password' required>" + "\n" +
 
-				"<label style='height:10%;width:100%;text-align:left;text-size:auto;margin:auto;display:inline;'>Verification code: "+secerr+"</label>" + "\n" +
-				"<input type='text' name='sec' style='height:10%;width:100%;text-align:left;margin:auto;'>" + "\n" +
+				"<br><label class='sr-only'>Verification code: "+secerr+"</label>" + "\n" +
+				"<input type='text' class='form-control' name='sec' placeholder='Two-Factor Auth Code' required>" + "\n" +
 
-				"<input type='submit' style='height:10%;width:30%;margin:auto;'/>" + "\n" +
+				"<br><button class='btn btn-lg btn-primary btn-block' type='submit'>Sign in</button>" + "\n" +
 				"</form>";
 	}
 

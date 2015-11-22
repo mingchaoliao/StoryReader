@@ -90,27 +90,27 @@ public class Read extends HttpServlet {
 		
 		// do freemarker templete stuff
 		marker.put("menu", generateMenu(bid, pages, 0, res));
-		marker.put("list",pages.get(0));
+		marker.put("list","<p style='font-size:30px;margin-top:20px;width:80%;'>"+pages.get(0)+"</p>");
 		marker.process(session, out);
 		
 	}
 	
 	// this method is used to generate menu bar
 	private String generateMenu(String bid, ArrayList<String> pages, int i, HttpServletResponse res) {
-		String rtn = "";
-		rtn += "<li><a href='"+res.encodeURL("index.html")+"'>Home</a></li>";
-		
+		String rtn = "<div class='list-group'>";
+		rtn += "<a href='"+res.encodeURL("index.html")+"' class='list-group-item'>Home</a>";
+		rtn += "<a href='"+res.encodeURL("select.html")+"' class='list-group-item'>Select Book</a>";
 		// if has next page, generate a link
 		if(i > 0) {
-			rtn += "<li><a href='"+res.encodeURL("read.html"+"?page="+(i-1))+"'>Prev</a></li>";
+			rtn += "<a href='"+res.encodeURL("read.html"+"?page="+(i-1))+"' class='list-group-item'>Prev</a>";
 			
 		}
 		
 		// if has previous link, generate a link
 		if(i < pages.size()-1) {
-			rtn += "<li><a href='"+res.encodeURL("read.html"+"?page="+(i+1))+"'>Next</a></li>";
+			rtn += "<a href='"+res.encodeURL("read.html"+"?page="+(i+1))+"' class='list-group-item'>Next</a>";
 		}
-		
+		rtn += "</div>";
 		session.setAttribute("bid", bid);
 		return rtn;
 	}
@@ -150,7 +150,7 @@ public class Read extends HttpServlet {
 		
 		
 		marker.put("menu", generateMenu(bid, pages, page, res));
-		marker.put("list",pages.get(page));
+		marker.put("list","<p style='font-size:30px;margin-top:20px;width:80%;'>"+pages.get(page)+"</p>");
 		marker.process(session,out);
 		
 	}

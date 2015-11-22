@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <style>
+    html, body {
+       margin: 0;
+       padding: 0;
+       height: 99%;
+    }
+  
+    /* Remove the navbar's default margin-bottom and rounded borders */ 
+    .navbar {
+	  
+      margin-bottom: 0;
+      border-radius: 0;
+    }
+    
+    
+    
+    /* Set black background color, white text and some padding */
+    footer {
+      padding-top: 19px;
+		color: #777;
+		border-top: 1px solid #e5e5e5;
+		text-align:center;
+    }
+    
+    
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-inverse" style='min-height:5% !important;'>
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>                        
+      </button>
+      <a class="navbar-brand" href="#">Story Reader</a>
+    </div>
+    <div class="collapse navbar-collapse" id="myNavbar">
+      
+      <ul class="nav navbar-nav navbar-right">
+	    ${button}
+      </ul>
+    </div>
+  </div>
+</nav>
+  
+<div class="container-fluid text-center" style='min-height:89% !important;'>    
+  <div class="row content" style='min-height:100% !important;'>
+  
+    <div class="col-sm-2">
+      <div class="list-group" style='margin-top:30px;'>
+        ${menu}
+      </div>
+    </div>
+	
+    <div class="col-sm-10 text-left"> 
+      ${list}
+    </div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+   <p>Created By: Mingchao Liao</p>
+</footer>
+
+</body>
+</html>

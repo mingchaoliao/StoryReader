@@ -132,10 +132,10 @@ public class SQL_Handler {
 	// get a list of all book name
 	// if no book exist, return null
 	public static ArrayList<String[]> getAllBooks() throws SQLException {
-		ResultSet rs = executeQuery("select bid,name from book");
+		ResultSet rs = executeQuery("select * from book");
 		ArrayList<String[]> list = new ArrayList<String[]>();
 		while(rs.next()) {
-			list.add(new String[]{rs.getString("bid"),rs.getString("name")});
+			list.add(new String[]{rs.getString("bid"),rs.getString("name"),rs.getString("author"),rs.getString("publisher"),String.valueOf(getBook(rs.getString("bid")).size())});
 		}
 		return (list==null ? null : list);
 	}
@@ -186,8 +186,15 @@ public class SQL_Handler {
 	}
 	
 	public static boolean validateRustKey(String key) throws SQLException {
+		return validateRustKey(key,0);
+	}
+	public static boolean validateRustKey(String key,int permission) throws SQLException {
 		ResultSet re = executeQuery("select * from user where rustkey = '"+key+"';");
-		return re.next();
+		if(permission == 1) {
+			return re.next() && re.getString("username").equals("admin");
+		} else {
+			return re.next();
+		}
 	}
 	
 	public static String getBookName(String bid) throws SQLException {
@@ -196,6 +203,29 @@ public class SQL_Handler {
 			return re.getString("name");
 		}
 		return null;
+	}
+	
+	public static String[] getBookInfo(String bid) throws SQLException {
+		ResultSet rs = executeQuery("select * from book where bid = "+bid+";");
+		if(rs.next()) {
+			return new String[]{rs.getString("bid"),rs.getString("name"),rs.getString("author"),rs.getString("publisher"),String.valueOf(getBook(rs.getString("bid")).size())};
+		}
+		return null;
+	}
+
+	public static boolean deleteStory(String bid) throws SQLException {
+		return executeUpdate("delete from book where bid="+bid+";") > 0;
+	}
+
+	public boolean editStory(String bid, String title, String author, String publisher, String content) throws SQLException {
+		return executeUpdate("update book set "
+							+ "name='"+title+"',author='"+author+"',publisher='"+publisher+"',content='"+content+"' "
+							+ "where bid="+bid+";") > 0;
+	}
+	
+	public boolean addStory(String title, String author, String publisher, String content) throws SQLException {
+		return executeUpdate("insert into book(name,author,publisher,content) "
+							+ "values('"+title+"','"+author+"','"+publisher+"','"+content+"');") > 0;
 	}
 
 }
