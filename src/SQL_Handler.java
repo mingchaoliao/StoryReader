@@ -181,7 +181,7 @@ public class SQL_Handler {
 		}
 		key += uid;
 		//System.out.println(key);
-		executeUpdate("update user set rustkey = '"+key+"' where uid = "+uid+";");
+		executeUpdate("update user set restkey = '"+key+"' where uid = "+uid+";");
 		return key;
 	}
 	
@@ -189,7 +189,7 @@ public class SQL_Handler {
 		return validateRestKey(key,0);
 	}
 	public static boolean validateRestKey(String key,int permission) throws SQLException {
-		ResultSet re = executeQuery("select * from user where rustkey = '"+key+"';");
+		ResultSet re = executeQuery("select * from user where restkey = '"+key+"';");
 		if(permission == 1) {
 			return re.next() && re.getString("username").equals("admin");
 		} else {
