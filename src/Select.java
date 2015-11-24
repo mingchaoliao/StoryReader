@@ -67,7 +67,7 @@ public class Select extends HttpServlet {
 		Log.getInstance().write("User", "User("+session.getAttribute("user")+") start choose book", req);
 		marker.put("menu", "<div class='list-group'>"
 				+ "<a href='index.html' class='list-group-item'>Home</a>"
-				+ "<a href='storyRust' class='list-group-item'>Rust API</a>"
+				+ "<a href='storyRest' class='list-group-item'>Rest API</a>"
 				+ "</div>");
 		marker.put("list",list);
 		marker.process(session,out);

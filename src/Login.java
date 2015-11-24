@@ -46,7 +46,7 @@ public class Login extends HttpServlet {
 	private void get(HttpServletRequest req, HttpServletResponse res) throws TemplateNotFoundException, MalformedTemplateNameException, ParseException, IOException, TemplateException, SQLException {
 		marker.put("menu", "<div class='list-group'>"
 					+ "<a href='index.html' class='list-group-item'>Home</a>"
-					+ "<a href='storyRust' class='list-group-item'>Rust API</a>"
+					+ "<a href='storyRest' class='list-group-item'>Rest API</a>"
 					+ "</div>");
 		marker.put("button", "");
 		marker.put("list",loginForm(res,"","","",""));

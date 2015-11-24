@@ -1,450 +1,543 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Bootstrap Example</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-  <style>
-    html, body {
-       margin: 0;
-       padding: 0;
-       height: 99%;
-    }
-  
-    /* Remove the navbar's default margin-bottom and rounded borders */ 
-    .navbar {
-	  
-      margin-bottom: 0;
-      border-radius: 0;
-    }
-    
-    
-    
-    /* Set black background color, white text and some padding */
-    footer {
-      padding-top: 19px;
-		color: #777;
-		border-top: 1px solid #e5e5e5;
-		text-align:center;
-    }
-    
-    
-  </style>
-  
-	<script>
-		var content = [];
-		var s2dlvalue;
-		
-	
-		$(document).ready(function(){
-			init();
-			$('#s1-add').click(add);
-			$('#s1-edit').click(edit);
-			$('#s1-delete').click(del);
-			$('#content').bind('keyup',function() {
-				content[$('#s3pages').val()] = $('#content').val();
-			});
-			$('#s3up').click(s3up);
-			$('#s3down').click(s3down);
-		});
-		
-		function s3up() {
-			var page = parseInt($("#s3pages").val());
-			if(page > 0) {
-				var tmp = content[page-1];
-				content[page-1]=content[page];
-				content[page]=tmp;
-				$("#s3pages").val((page-1).toString());
-			}
-		}
-		
-		function s3down() {
-			var page = parseInt($("#s3pages").val());
-			if(page < content.length-1) {
-				var tmp = content[page+1];
-				content[page+1]=content[page];
-				content[page]=tmp;
-				$("#s3pages").val((page+1).toString());
-			}
-		}
-		
-		function add() {
-			init();
+<title>Bootstrap Example</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet"
+  href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<script
+  src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script
+  src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 99%;
+}
 
-			$('#step3').show();
-			$('#step4').show();
-			
-			$('#step4 h2').text("");
-			$('#step4 #confirm').text("Add");
-			$('#step3 h2').text("Add");
-			$('#confirm').show();
-			$('#reset').show();
-			pageHandler();
-			$('#reset').click({param1:"1"},reset);
-			$('#confirm').click({param1:"0"},confirm);
-		}
-		
-		function edit() {
-			
-			init();
-			getlistEdit();
-			$('#step3').hide();
-			$('#step4').hide();
-		
-			$('#step2').show();
-			$('#confirm').show();
-			$('#reset').show();
-			$("#s2-select").change(function() {
-				getstory($("#s2-select").val());
-				$('#step3').show();
-				$('#step4').show();
-			
-				$('#step4 h2').text("");
-				$('#step4 #confirm').text("Confirm");
-				$('#step3 h2').text("Edit");
-			
-				$('#reset').click({param1:"0"},reset);
-				$('#confirm').click({param1:"1"},confirm);
-			});
-			
-		}
-		
-		function del() {
-			init();
-			$('#s2dl').show();
-			$('#confirm').show();
-			
-			getlistDelete();
-			
-		}
-		
-		function reset(event) {
-			if(event.data.param1==1) {
-				$('#title').val('');
-				$('#author').val('');
-				$('#publisher').val('');
-				$('#content').val('');
-			} else {
-			
-			}
-		}
-		
-		function confirm(event) {
-			var rtn = "";
-			for(var i = 0; i < content.length; i++) {
-				rtn += "\n<PAGE>\n";
-				rtn += content[i];
-				rtn += "\n</PAGE>";
-			}
-			var title = $('#title').val();
-			var author = $('#author').val();
-			var publisher = $('#publisher').val();
-			var BID = $('#s2-select').val();
-			
-			$('#confirm').hide();
-			$('#reset').hide();
-			
-			$('#warning').show();
-			$(':input').not('#danger,#default').attr('disabled', true);
-			$('#default').click(function() {
-				$('#confirm').show();
-				$('#reset').show();
-				$('#warning').hide();
-				$('#default').unbind();
-				$(':input').attr('disabled', false);
-			});
-			
-			$('#danger').click(function() {
-				if(event.data.param1==0) { //add
-					alert("add");
-					$.post( "storyRust//add", {story:JSON.stringify({"Title":title, "Author":author,"Publisher":publisher,"Content":rtn})});
-				} else if(event.data.param1==1) { //edit
-					alert("edit");
-					$.post( "storyRust//edit", {story:JSON.stringify({"Title":title, "Author":author,"Publisher":publisher,"Content":rtn,"BID":BID})});
-				}
-				$(':input').attr('disabled', false);
-				$('#danger').unbind();
-				init();
-			});
-			
-		}
- 
-		function init() {
-			$('#step2').hide();
-			$('#step3').hide();
-			$('#step4').hide();
-			$('#s2dl').hide();
-			$('#warning').hide();
-			content=[];
-			
-			$('#title').val("");
-			$('#author').val("");
-			$('#publisher').val("");
-			$('#content').val("");
-			
-			$("#s3pages").children().remove();
-			$("#s3pages").append($("<option></option>").val("0").html("1"));
-			$("#s3pages").append($("<option></option>").val("addpages").html("+ Add A Page"));
-			$('#s2-select option[value=""]').prop('selected', true);
-			
-			$("#pagedelete").unbind("click");
-			$("#confirm").unbind("click");
-			$("#reset").unbind("click");
-			$("#danger").unbind("click");
-			$("#default").unbind("click");
-			$("#up").unbind("click");
-			$("#down").unbind("click");
-		}
-		
-		function getlistEdit() {
-			$("#s2-select").children('option:not(:first)').remove();
-			var rustapi_getlist = "storyRust//getlist";
-			$.getJSON(rustapi_getlist,function(result){
-				$.each(result, function(i, field){
-					for(var j = 0; j < field.length; j++) {
-						$("#s2-select").append($("<option></option>").val(field[j].BID).html(field[j].Title));
-					}
-				});
-			});
+.navbar {
+  margin-bottom: 0;
+  border-radius: 0;
+}
 
-		}
-		
-		function getlistDelete() {
-			$('#s2dl-div').empty();
-			var rustapi_getlist = "storyRust//getlist";
-			$.getJSON(rustapi_getlist,function(result){
-				$.each(result, function(i, field){
-					for(var j = 0; j < field.length; j++) {
-						$("#s2dl-div").append("<div class='row'>"
-		                                    + "<div class='input-group'>"
-			                                + "<span class='input-group-addon'>"
-			                                + "<input type='checkbox' name='s2checkbox' id='s2dl-checkbox' value='"+field[j].BID+"'>"
-			                                + "</span>"
-			                                + "<label class='form-control'>"
-											+ field[j].Title
-											+ "</label>"
-			                                + "</div>"
-		                                    + "</div>");
-					}
-				});
-				$("input:checkbox").change(function() {
-					s2dlvalue = $('input[name="s2checkbox"]:checked').map(function() {
-						return this.value;
-					}).get();
-					
-					if(s2dlvalue.length == 0) {
-						$('#step4').hide();
-					} else {
-						$('#step4').show();
-						$('#step4 h2').text("Delete");
-						$('#reset').hide();
-						$('#confirm').text("Comfirm");
-						$('#confirm').show();
-						$('#confirm').click(function() {
-							$(':input').not('#danger,#default').attr('disabled', true);
-							$('#warning').show();
-							$('#confirm').hide();
-							$('#default').click(function() {
-								$(':input').attr('disabled', false);
-								$('#warning').hide();
-								$('#confirm').show();
-							});
-							
-						});
-					}
-					
-				});
-				$('#danger').click(function() {
-					$(':input').attr('disabled', false);
-					for(var i = 0; i < s2dlvalue.length; i++) {
-						$.getJSON("storyRust//delete/"+s2dlvalue[i],function(result){
-							
-						});
-					}
-					
-					init();
-				});
-			});
-			
+footer {
+  padding-top: 19px;
+  color: #777;
+  border-top: 1px solid #e5e5e5;
+  text-align: center;
+}
+</style>
+<script>
+  var content = [];
+  var s2dlvalue;
 
-		}
-		
-		function getstory(bid) {
-			$('#title').val("");
-			$('#author').val("");
-			$('#publisher').val("");
-			$('#content').val("");
-			$("#s3pages").children().remove();
-			var rustapi_getstory = "storyRust//getstory/"+bid;
-			$.getJSON(rustapi_getstory,function(result){
-				$("#pagedelete").unbind();
-				$('#title').val(result.Title);
-				$('#author').val(result.Author);
-				$('#publisher').val(result.Publisher);
-				
-				content = [];
-				$.each(result.content, function(i,con){
-					content.push(con);
-				});
-				
-				makePages();
-				
-				$('#content').val(content[0]);
-				
-				pageHandler();
-			});
-			
-		}
-		
-		function pageHandler() {
-			$("#s3pages").change(function() {
-					if($("#s3pages").val()=="addpages") {
-						content.push("");
-						makePages();
-						$('#s3pages').val((content.length-1).toString());
-						$('#content').val(content[parseInt($("#s3pages").val())]);
-					} else {
-						$('#content').val(content[parseInt($("#s3pages").val())]);
-					}
-					
-				});
-				
-				$("#pagedelete").click(function() {
-					
-					var current = parseInt($("#s3pages").val());
-					content.splice(current,1);
-					if(content.length==0) content.push("");
-					makePages();
-					$('#content').val(content[parseInt($("#s3pages").val())]);
-				});
-		}
-		
-		function makePages() {
-			$("#s3pages").children().remove();
-			for(var i = 0; i < content.length; i++) {
-				$("#s3pages").append($("<option></option>").val(i).html(i+1));
-			}
-			$("#s3pages").append($("<option></option>").val("addpages").html("+ Add A Page"));
-		}
-	</script>
+  $(document).ready(function() {
+    init(); //initialization, hide div
+
+    //add click event
+    $('#s1-add').click(add);
+    $('#s1-edit').click(edit);
+    $('#s1-delete').click(del);
+
+    //add keyboard listener
+    $('#content').bind('keyup', function() {
+      content[$('#s3pages').val()] = $('#content').val();
+    });
+
+    //add click event for "shuffle page"
+    $('#s3up').click(s3up);
+    $('#s3down').click(s3down);
+  });
+
+  //move page up
+  function s3up() {
+    var page = parseInt($("#s3pages").val());
+    if (page > 0) {
+      var tmp = content[page - 1];
+      content[page - 1] = content[page];
+      content[page] = tmp;
+      $("#s3pages").val((page - 1).toString());
+    }
+  }
+
+  //move page down
+  function s3down() {
+    var page = parseInt($("#s3pages").val());
+    if (page < content.length - 1) {
+      var tmp = content[page + 1];
+      content[page + 1] = content[page];
+      content[page] = tmp;
+      $("#s3pages").val((page + 1).toString());
+    }
+  }
+
+  // add function, use to add a story to database
+  function add() {
+    init(); //do initialization
+
+    $('#step3').show();
+    $('#step4').show();
+
+    $('#step4 h2').text("");
+    $('#step4 #confirm').text("Add");
+    $('#step3 h2').text("Add");
+    $('#confirm').show();
+
+    //retrieve pages from database
+    pageHandler();
+
+    //add handler for confirm button
+    $('#confirm').click({
+      param1 : "0"
+    }, confirm);
+  }
+
+  // edit function, used to edit existing story
+  function edit() {
+    init(); //do initialization
+
+    //get story list, using rest call
+    getlistEdit();
+
+    $('#step3').hide();
+    $('#step4').hide();
+
+    $('#step2').show();
+    $('#confirm').show();
+
+    // set handler for page select bar
+    $("#s2-select").change(function() {
+      getstory($("#s2-select").val());
+      $('#step3').show();
+      $('#step4').show();
+
+      $('#step4 h2').text("");
+      $('#step4 #confirm').text("Confirm");
+      $('#step3 h2').text("Edit");
+
+      $('#confirm').click({
+        param1 : "1"
+      }, confirm);
+    });
+  }
+
+  // delete function, used to delete exsiting stories
+  function del() {
+    init(); //do initialization
+
+    $('#s2dl').show();
+    $('#confirm').show();
+
+    //get story list via rest call
+    getlistDelete();
+  }
+
+  // handle things when comfirm button is hit
+  function confirm(event) {
+    var rtn = "";
+
+    //convert String array to json array, replace html special character
+    for (var i = 0; i < content.length; i++) {
+      content[i] = content[i].replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      rtn += "\n<PAGE>\n";
+      rtn += content[i];
+      rtn += "\n</PAGE>";
+    }
+
+    // get all part
+    var title = $('#title').val();
+
+    // do error checking, if title is empty...
+    if (title == "") {
+      alert('Title is Required!');
+      return;
+    }
+
+    var author = $('#author').val();
+    var publisher = $('#publisher').val();
+    var BID = $('#s2-select').val();
+
+    $('#confirm').hide();
+
+    $('#warning').show();
+
+    $(':input').not('#danger,#default').attr('disabled', true);
+    $('#default').click(function() {
+      $('#confirm').show();
+
+      $('#warning').hide();
+      $('#default').unbind();
+      $(':input').attr('disabled', false);
+    });
+
+    // send rest call to server, using post
+    $('#danger').click(function() {
+      if (event.data.param1 == 0) { //add
+        $.post("storyRest//add", {
+          story : JSON.stringify({
+            "Title" : title,
+            "Author" : author,
+            "Publisher" : publisher,
+            "Content" : rtn
+          })
+        });
+      } else if (event.data.param1 == 1) { //edit
+
+        $.post("storyRest//edit", {
+          story : JSON.stringify({
+            "Title" : title,
+            "Author" : author,
+            "Publisher" : publisher,
+            "Content" : rtn,
+            "BID" : BID
+          })
+        });
+      }
+      $(':input').attr('disabled', false);
+      $('#danger').unbind();
+      init();
+    });
+  }
+
+  //initialization function: hide div, unbind event handler
+  function init() {
+    $('#step2').hide();
+    $('#step3').hide();
+    $('#step4').hide();
+    $('#s2dl').hide();
+    $('#warning').hide();
+    content = [];
+
+    $('#title').val("");
+    $('#author').val("");
+    $('#publisher').val("");
+    $('#content').val("");
+
+    $("#s3pages").children().remove();
+    $("#s3pages").append($("<option></option>").val("0").html("1"));
+    $("#s3pages").append(
+        $("<option></option>").val("addpages").html("+ Add A Page"));
+    $('#s2-select option[value=""]').prop('selected', true);
+
+    $("#pagedelete").unbind("click");
+    $("#confirm").unbind("click");
+
+    $("#danger").unbind("click");
+    $("#default").unbind("click");
+    $("#up").unbind("click");
+    $("#down").unbind("click");
+  }
+
+  //get story list from DB, using rest call(with session)
+  function getlistEdit() {
+    $("#s2-select").children('option:not(:first)').remove();
+    var rustapi_getlist = "storyRest//getlist";
+    $.getJSON(rustapi_getlist, function(result) {
+      $.each(result, function(i, field) {
+        for (var j = 0; j < field.length; j++) {
+          $("#s2-select").append(
+              $("<option></option>").val(field[j].BID).html(
+                  field[j].Title));
+        }
+      });
+    });
+  }
+
+  function getlistDelete() {
+    $('#s2dl-div').empty();
+    var rustapi_getlist = "storyRest//getlist";
+    $
+        .getJSON(
+            rustapi_getlist,
+            function(result) {
+              $
+                  .each(
+                      result,
+                      function(i, field) {
+                        for (var j = 0; j < field.length; j++) {
+                          $("#s2dl-div")
+                              .append(
+                                  "<div class='row'>"
+                                      + "<div class='input-group'>"
+                                      + "<span class='input-group-addon'>"
+                                      + "<input type='checkbox' name='s2checkbox' id='s2dl-checkbox' value='"+field[j].BID+"'>"
+                                      + "</span>"
+                                      + "<label class='form-control'>"
+                                      + field[j].Title
+                                      + "</label>"
+                                      + "</div>"
+                                      + "</div>");
+                        }
+                      });
+              $("input:checkbox")
+                  .change(
+                      function() {
+                        s2dlvalue = $(
+                            'input[name="s2checkbox"]:checked')
+                            .map(function() {
+                              return this.value;
+                            }).get();
+
+                        if (s2dlvalue.length == 0) {
+                          $('#step4').hide();
+                        } else {
+                          $('#step4').show();
+                          $('#step4 h2').text(
+                              "Delete");
+
+                          $('#confirm').text(
+                              "Comfirm");
+                          $('#confirm').show();
+                          $('#confirm')
+                              .click(
+                                  function() {
+                                    $(
+                                        ':input')
+                                        .not(
+                                            '#danger,#default')
+                                        .attr(
+                                            'disabled',
+                                            true);
+                                    $(
+                                        '#warning')
+                                        .show();
+                                    $(
+                                        '#confirm')
+                                        .hide();
+                                    $(
+                                        '#default')
+                                        .click(
+                                            function() {
+                                              $(
+                                                  ':input')
+                                                  .attr(
+                                                      'disabled',
+                                                      false);
+                                              $(
+                                                  '#warning')
+                                                  .hide();
+                                              $(
+                                                  '#confirm')
+                                                  .show();
+                                            });
+
+                                  });
+                        }
+
+                      });
+              $('#danger')
+                  .click(
+                      function() {
+                        $(':input').attr('disabled',
+                            false);
+                        for (var i = 0; i < s2dlvalue.length; i++) {
+                          $
+                              .getJSON(
+                                  "storyRest//delete/"
+                                      + s2dlvalue[i],
+                                  function(
+                                      result) {
+
+                                  });
+                        }
+
+                        init();
+                      });
+            });
+
+  }
+
+  function getstory(bid) {
+    $('#title').val("");
+    $('#author').val("");
+    $('#publisher').val("");
+    $('#content').val("");
+    $("#s3pages").children().remove();
+    var rustapi_getstory = "storyRest//getstory/" + bid;
+    $.getJSON(rustapi_getstory, function(result) {
+      $("#pagedelete").unbind();
+      $('#title').val(result.Title);
+      $('#author').val(result.Author);
+      $('#publisher').val(result.Publisher);
+
+      content = [];
+      $.each(result.content, function(i, con) {
+        content.push(con);
+      });
+
+      makePages();
+
+      $('#content').val(content[0]);
+
+      pageHandler();
+    });
+
+  }
+
+  function pageHandler() {
+    $("#s3pages").change(function() {
+      if ($("#s3pages").val() == "addpages") {
+        content.push("");
+        makePages();
+        $('#s3pages').val((content.length - 1).toString());
+        $('#content').val(content[parseInt($("#s3pages").val())]);
+      } else {
+        $('#content').val(content[parseInt($("#s3pages").val())]);
+      }
+
+    });
+
+    $("#pagedelete").click(function() {
+
+      var current = parseInt($("#s3pages").val());
+      content.splice(current, 1);
+      if (content.length == 0)
+        content.push("");
+      makePages();
+      $('#content').val(content[parseInt($("#s3pages").val())]);
+    });
+  }
+
+  function makePages() {
+    $("#s3pages").children().remove();
+    for (var i = 0; i < content.length; i++) {
+      $("#s3pages").append($("<option></option>").val(i).html(i + 1));
+    }
+    $("#s3pages").append(
+        $("<option></option>").val("addpages").html("+ Add A Page"));
+  }
+</script>
 </head>
 <body>
 
-<nav class="navbar navbar-inverse" style='min-height:5% !important;'>
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>                        
-      </button>
-      <a class="navbar-brand" href="#">Story Reader</a>
-    </div>
-    <div class="collapse navbar-collapse" id="myNavbar">
-      
-      <ul class="nav navbar-nav navbar-right">
-	    ${button}
-      </ul>
-    </div>
-  </div>
-</nav>
-  
-<div class="container-fluid text-center" style='min-height:89% !important;'>    
-  <div class="row content" style='min-height:100% !important;'>
-  
-    <div class="col-lg-2">
-      <div class="list-group" style='margin-top:30px;'>
-        ${menu}
+  <nav class="navbar navbar-inverse" style='min-height: 5% !important;'>
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse"
+          data-target="#myNavbar">
+          <span class="icon-bar"></span> <span class="icon-bar"></span> <span
+            class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">Story Reader</a>
+      </div>
+      <div class="collapse navbar-collapse" id="myNavbar">
+
+        <ul class="nav navbar-nav navbar-right">${button}
+        </ul>
       </div>
     </div>
-	
-    <div class="col-lg-10 text-left"> 
-      <h1>Admin Tool</h1>
-	  <h3 id='test_ajax'></h3>
-	  <hr>
-	  <div class="col-lg-4 text-left">
-	  <div id='step1' class='col-lg-12'>
-	    <h2>Please Select An Action</h2>
-	    <div class="btn-group"  data-toggle="buttons">
-		  <label class="btn btn-default btn-lg" id="s1-add">
-            <input type="radio"  autocomplete="off">
-			Add Story
-          </label>
-	      <label class="btn btn-default btn-lg" id="s1-edit">
-            <input type="radio" autocomplete="off">
-			Edit Story
-          </label>
-		  <label class="btn btn-default btn-lg" id="s1-delete">
-            <input type="radio" autocomplete="off">
-			Delete Story
-          </label>
-        </div>
-	  </div>
-	  
-	  <div id='step2' class='col-lg-12'>
-	    <h2>Please Select A Story</h2>
-	    <div class='input-group input-group-lg' style='overflow:hidden;'>
-		  <select id='s2-select' class='input-group-addon' style='width:100%;border: 1px solid #CCCCCC;border-radius: 6px; background-color:#FFFFFF;'>
-		    <option value="" disabled selected hidden>Select A Story</option>
-		  </select>
-		</div>
-	  </div>
-	  
-	  <div id='s2dl' class='col-lg-12'>
-	    <h2>Please Select Stories</h2>
-	    <div id='s2dl-div' class='col-lg-12 text-left' style='max-height:700px;overflow:auto'>
-		</div>
-	  </div>
-	  </div>
-	  
-	  <div class="col-lg-6 text-left">
-	  <div id='step3' class="col-lg-12">
-		<h2>Add/Edit</h2>
-		<div class='input-group input-group-lg col-lg-12 col-xs-12 col-sm-12 col-md-12'>
-		<input class="form-control col-lg-12 col-xs-12 col-sm-12 col-md-12" type='text' id='title' class="form-control" placeholder='Title'>
-		<input class="form-control col-lg-12 col-xs-12 col-sm-12 col-md-12" type='text' id='author' class="form-control" placeholder='Author'>
-		<input class="form-control col-lg-12 col-xs-12 col-sm-12 col-md-12" type='text' id='publisher' class="form-control" placeholder='Publisher'>
-		
-		 
-		    <button class='col-lg-2  col-xs-2 col-sm-2 col-md-2 btn btn-lg' id='s3up'>Up</button>
-		    <select id='s3pages' class='btn-lg col-lg-6 col-xs-6 col-sm-6 col-md-6' style='border: 1px solid #CCCCCC;border-radius: 6px; background-color:#FFFFFF;'>
-		      <option value="" disabled selected hidden></option>
-			  <div id='s3-pages'></div>
-			  <option value='addpages'>+ Add A Page</option>
-		    </select>
-			<button class='col-lg-2 col-xs-2 col-sm-2 col-md-2  btn btn-lg' id='s3down'>Down</button>
-			<button class='col-lg-2 col-xs-2 col-sm-2 col-md-2 btn-danger btn-lg' id='pagedelete'>Delete</button>
-		  
-		
-		<textarea class="col-lg-12 col-xs-12 col-sm-12 col-md-12" rows=18% id='content' class="form-control" placeholder='Content'></textarea>
-		</div>
-	 </div>
-	  
-	  <div id='step4'>
-	    <h2>Delete</h2>
-		<button id='confirm'>Confirm Change</button>
-		<button id='reset'>Reset</button>
-		<div id='warning' class="alert alert-danger alert-dismissible fade in" role="alert" hidden>
-          <h4>Warning!</h4>
-          <p>
-             <button type="button" class="btn btn-danger btn-lg" id='danger'>Confirm</button>
-             <button type="button" class="btn btn-default btn-lg" id='default'>Cancel</button>
-          </p>
-        </div>
-	  </div>
-	  </div>
-	  
-    </div>
-    
-  </div>
-</div>
+  </nav>
 
-<footer class="footer">
-   <p>Created By: Mingchao Liao</p>
-</footer>
+  <div class="container-fluid text-center"
+    style='min-height: 89% !important;'>
+    <div class="row content" style='min-height: 100% !important;'>
+
+      <div class="col-lg-2">
+        <div class="list-group" style='margin-top: 30px;'>${menu}</div>
+      </div>
+
+      <div class="col-lg-10 text-left">
+        <h1>Admin Tool</h1>
+        <h3 id='test_ajax'></h3>
+        <hr>
+        <div class="col-lg-4 text-left">
+          <div id='step1' class='col-lg-12'>
+            <h2>Please Select An Action</h2>
+            <div class="btn-group" data-toggle="buttons">
+              <label class="btn btn-default btn-lg" id="s1-add"> <input
+                type="radio" autocomplete="off"> Add Story
+              </label> <label class="btn btn-default btn-lg" id="s1-edit"> <input
+                type="radio" autocomplete="off"> Edit Story
+              </label> <label class="btn btn-default btn-lg" id="s1-delete"> <input
+                type="radio" autocomplete="off"> Delete Story
+              </label>
+            </div>
+          </div>
+
+          <div id='step2' class='col-lg-12'>
+            <h2>Please Select A Story</h2>
+            <div class='input-group input-group-lg' style='overflow: hidden;'>
+              <select id='s2-select' class='input-group-addon'
+                style='width: 100%; border: 1px solid #CCCCCC; border-radius: 6px; background-color: #FFFFFF;'>
+                <option value="" disabled selected hidden>Select A
+                  Story</option>
+              </select>
+            </div>
+          </div>
+
+          <div id='s2dl' class='col-lg-12'>
+            <h2>Please Select Stories</h2>
+            <div id='s2dl-div' class='col-lg-12 text-left'
+              style='max-height: 700px; overflow: auto'></div>
+          </div>
+        </div>
+
+        <div class="col-lg-6 text-left">
+          <div id='step3' class="col-lg-12">
+            <h2>Add/Edit</h2>
+            <div
+              class='input-group input-group-lg col-lg-12 col-xs-12 col-sm-12 col-md-12'>
+              <input
+                class="form-control col-lg-12 col-xs-12 col-sm-12 col-md-12"
+                type='text' id='title' class="form-control"
+                placeholder='Title (required)'> <input
+                class="form-control col-lg-12 col-xs-12 col-sm-12 col-md-12"
+                type='text' id='author' class="form-control"
+                placeholder='Author (optional)'> <input
+                class="form-control col-lg-12 col-xs-12 col-sm-12 col-md-12"
+                type='text' id='publisher' class="form-control"
+                placeholder='Publisher (optional)'>
+
+
+              <button class='col-lg-2  col-xs-2 col-sm-2 col-md-2 btn btn-lg'
+                id='s3up'>Up</button>
+              <select id='s3pages'
+                class='btn-lg col-lg-6 col-xs-6 col-sm-6 col-md-6'
+                style='border: 1px solid #CCCCCC; border-radius: 6px; background-color: #FFFFFF;'>
+                <option value="" disabled selected hidden></option>
+                <div id='s3-pages'></div>
+                <option value='addpages'>+ Add A Page</option>
+              </select>
+              <button class='col-lg-2 col-xs-2 col-sm-2 col-md-2  btn btn-lg'
+                id='s3down'>Down</button>
+              <button
+                class='col-lg-2 col-xs-2 col-sm-2 col-md-2 btn-danger btn-lg'
+                id='pagedelete'>Delete</button>
+
+
+              <textarea class="col-lg-12 col-xs-12 col-sm-12 col-md-12"
+                rows=18% id='content' class="form-control"
+                placeholder='Content (optional)'></textarea>
+            </div>
+          </div>
+
+          <div id='step4' class='col-lg-12 col-xs-12 col-sm-12 col-md-12'>
+            <h2>Delete</h2>
+            <button class='btn btn-lg' id='confirm'>Confirm Change</button>
+
+            <div id='warning'
+              class="alert alert-danger alert-dismissible fade in" role="alert"
+              hidden>
+              <h4>Warning!</h4>
+              <p>
+                <button type="button" class="btn btn-danger btn-lg" id='danger'>Confirm</button>
+                <button type="button" class="btn btn-default btn-lg"
+                  id='default'>Cancel</button>
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>Created By: Mingchao Liao</p>
+  </footer>
 
 </body>
 </html>

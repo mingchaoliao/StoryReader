@@ -1,7 +1,7 @@
 /*
  * CSE383
  * Mingchao Liao
- * Rust Server
+ * Rest Server
  */
 
 import java.io.IOException;
@@ -25,10 +25,12 @@ import org.json.JSONObject;
 
 import freemarker.template.TemplateException;
 
-public class Rust extends HttpServlet {
+public class Rest extends HttpServlet {
+	
 	SQL_Handler sql;
 	Log log;
 	HttpSession session;
+	
 	protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		try {
 			sql = SQL_Handler.getInstance();
@@ -40,7 +42,7 @@ public class Rust extends HttpServlet {
 			e.printStackTrace(res.getWriter());
 		}
 	}
-	
+
 	protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		try {
 			sql = SQL_Handler.getInstance();
@@ -52,20 +54,33 @@ public class Rust extends HttpServlet {
 			e.printStackTrace(res.getWriter());
 		}
 	}
-	
+
 	private void processPost(HttpServletRequest req, HttpServletResponse res, String[] tem) throws IOException, SQLException {
-		
+		//moniter edit function
 		if(tem.length == 5 && tem[4].equalsIgnoreCase("edit")) {
-			if(session.getAttribute("user") == null && !session.getAttribute("user").equals("admin") && !sql.validateRustKey(tem[3],1)) {
+			
+			//auth: either key or session, admin permission required
+			if(session.getAttribute("user") == null && !session.getAttribute("user").equals("admin") && !sql.validateRestKey(tem[3],1)) {
 				sendJSONError(req, res, "Invalid Key");
 				return;
 			}
+			
 			JSONObject obj = new JSONObject(req.getParameter("story"));
 			String bid = obj.getString("BID");
 			String title = obj.getString("Title");
+			
+			//error checking: title is required
+			if(title != null && title.equals("")) {
+				sendJSONError(req, res, "Title is required");
+				return;
+			}
+			
 			String author = obj.getString("Author");
 			String publisher = obj.getString("Publisher");
 			String content = obj.getString("Content");
+			
+			//error checking, no null
+			//update database
 			if(bid != null && title != null && author != null && publisher != null && content != null && !bid.equals("") && !title.equals("")) {
 				boolean status = sql.editStory(bid,title,author,publisher,content);
 				writeJSON(req, res, status?"edit Story BID("+bid+") Success":"edit Story BID("+bid+") Failed", 
@@ -76,17 +91,31 @@ public class Rust extends HttpServlet {
 			}
 			return;
 		}
-		
+
+		// moniter add function
 		if(tem.length == 5 && tem[4].equalsIgnoreCase("add")) {
-			if(session.getAttribute("user") == null && !session.getAttribute("user").equals("admin") && !sql.validateRustKey(tem[3],1)) {
+			
+			//auth: either key or session, admin permission required
+			if(session.getAttribute("user") == null && !session.getAttribute("user").equals("admin") && !sql.validateRestKey(tem[3],1)) {
 				sendJSONError(req, res, "Invalid Key");
 				return;
 			}
+			
 			JSONObject obj = new JSONObject(req.getParameter("story"));
 			String title = obj.getString("Title");
+			
+			//error checking: title is required
+			if(title != null && title.equals("")) {
+				sendJSONError(req, res, "Title is required");
+				return;
+			}
+			
 			String author = obj.getString("Author");
 			String publisher = obj.getString("Publisher");
 			String content = obj.getString("Content");
+			
+			//error checking, no null
+			//update database
 			if(title != null && author != null && publisher != null && content != null && !title.equals("")) {
 				boolean status = sql.addStory(title,author,publisher,content);
 				writeJSON(req, res, status?"add Story Title("+title+") Success":"add Story Title("+title+") Failed", 
@@ -97,11 +126,14 @@ public class Rust extends HttpServlet {
 			}
 			return;
 		}
-		
+
 	}
 
+	// handle http get request
 	private void process(HttpServletRequest req, HttpServletResponse res, String[] tem) throws SQLException, IOException, TemplateException {
-		if(tem.length == 3 && tem[2].equalsIgnoreCase("storyRust")) {
+		
+		// send help page
+		if(tem.length == 3 && tem[2].equalsIgnoreCase("storyRest")) {
 			res.setContentType("text/html");
 			PrintWriter out = res.getWriter();
 			FreemarkerHandler marker = FreemarkerHandler.getInstance(this);
@@ -109,28 +141,32 @@ public class Rust extends HttpServlet {
 					+ "<a href='index.html' class='list-group-item'>Home</a>"
 					+ "</div>");
 			marker.put("list", "<h1>Usages: </h1><br>"
-								+ "<hr>"
-								+ "<h2>No Sign In Required: </h2>"
-								+ "<ul>"
-								+ "<li><h3>Get Key: /storyRust/getkey/{username}/{password}/{two-factor-auth-code}</h3></li>"
-								+ "<li><h3>Get Story List: /storyRust/{key}/getlist</h3></li>"
-								+ "<li><h3>Get Story: /storyRust/{key}/getstory/{BID}</h3></li>"
-								+ "</ul>"
-								+ "<h2>Sign In Required: </h2>"
-								+ "<ul>"
-								+ "<li><h3>Get Story List: /storyRust//getlist</h3></li>"
-								+ "<li><h3>Get Story: /storyRust//getstory/{BID}</h3></li>"
-								+ "</ul>");
-			
+					+ "<hr>"
+					+ "<h2>No Sign In Required: </h2>"
+					+ "<ul>"
+					+ "<li><h3>Get Key: /storyRest/getkey/{username}/{password}/{two-factor-auth-code}</h3></li>"
+					+ "<li><h3>Get Story List: /storyRest/{key}/getlist</h3></li>"
+					+ "<li><h3>Get Story: /storyRest/{key}/getstory/{BID}</h3></li>"
+					+ "</ul>"
+					+ "<h2>Sign In Required: </h2>"
+					+ "<ul>"
+					+ "<li><h3>Get Story List: /storyRest//getlist</h3></li>"
+					+ "<li><h3>Get Story: /storyRest//getstory/{BID}</h3></li>"
+					+ "</ul>");
+
 			marker.process(session, out);
 			return;
 		}
-		
+
+		//handle get story list
 		if(tem.length == 5 && tem[4].equalsIgnoreCase("getlist")) {
-			if(session.getAttribute("user") == null && !sql.validateRustKey(tem[3])) {
+			
+			//auth: either key or session
+			if(session.getAttribute("user") == null && !sql.validateRestKey(tem[3])) {
 				sendJSONError(req, res, "Invalid Key");
 				return;
 			}
+			
 			ArrayList<String[]> booklist = sql.getAllBooks();
 
 			if(booklist == null) {
@@ -142,11 +178,15 @@ public class Rust extends HttpServlet {
 			return;
 		}
 
+		//handle get specified story
 		if(tem.length == 6 && tem[4].equalsIgnoreCase("getstory")) {
-			if(session.getAttribute("user") == null && !sql.validateRustKey(tem[3])) {
+			
+			//auth: either key or session
+			if(session.getAttribute("user") == null && !sql.validateRestKey(tem[3])) {
 				sendJSONError(req, res, "Invalid Key");
 				return;
 			}
+			
 			String bid = tem[5];
 			ArrayList<String> book = sql.getBook(bid);
 
@@ -155,23 +195,30 @@ public class Rust extends HttpServlet {
 				return;
 			}
 
-
 			sendBook(req,res,book,sql.getBookInfo(bid));
 
 			return;
 		}
-		
+
+		//handle delete function
 		if(tem.length == 6 && tem[4].equalsIgnoreCase("delete")) {
-			if(session.getAttribute("user") == null && !session.getAttribute("user").equals("admin") && !sql.validateRustKey(tem[3],1)) {
+			
+			//auth: either key or session (admin required)
+			if(session.getAttribute("user") == null && !session.getAttribute("user").equals("admin") && !sql.validateRestKey(tem[3],1)) {
 				sendJSONError(req, res, "Invalid Key");
 				return;
 			}
+			
 			boolean status = sql.deleteStory(tem[5]);
+			
+			//error checking: if story not exist or sql error, send json error
 			writeJSON(req, res, status?"Delete Story BID("+tem[5]+") Success":"Delete Story BID("+tem[5]+") Failed", 
 					"status", status?"true":"false");
+			
 			return;
 		}
 
+		// get key function, need username,password, and two factor auth key
 		if(tem.length == 7 && tem[3].equalsIgnoreCase("getkey")) {
 			int uid;
 			if((uid=sql.authenticate(tem[4], tem[5], tem[6])) != -1) {

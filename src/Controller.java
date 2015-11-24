@@ -70,7 +70,7 @@ public class Controller extends HttpServlet {
 				+ "<h3><li>Login/Logout</li></h3>"
 				+ "<h3><li>Two-Factor Authentication</li></h3>"
 				+ "<h3><li>Select/Read Story</li></h3>"
-				+ "<h3><li>Support Rust Call</li></h3>"
+				+ "<h3><li>Support Rest Call</li></h3>"
 				+ "<h3><li>Admin Tool: Edit/Delete/Add</li></h3>"
 				+ "</ul>";
 		
@@ -78,18 +78,18 @@ public class Controller extends HttpServlet {
 		String menu = "";
 		if(session.getAttribute("user") == null) {
 			menu = "<div class='list-group'>"
-					+ "<a href='storyRust' class='list-group-item'>Rust API</a>"
+					+ "<a href='storyRest' class='list-group-item'>Rest API</a>"
 					+ "</div>";
 		} else if(session.getAttribute("user").equals("admin")){
 			menu = "<div class='list-group'>"
 						+ "<a href='select.html' class='list-group-item'>Select Book</a>"
-						+ "<a href='storyRust' class='list-group-item'>Rust API</a>"
+						+ "<a href='storyRest' class='list-group-item'>Rest API</a>"
 						+ "<a href='admin.html' class='list-group-item'>Admin Tools</a>"
 						+ "</div>";
 		} else {
 			menu = "<div class='list-group'>"
 					+ "<a href='select.html' class='list-group-item'>Select Book</a>"
-					+ "<a href='storyRust' class='list-group-item'>Rust API</a>"
+					+ "<a href='storyRest' class='list-group-item'>Rest API</a>"
 					+ "</div>";
 		}
 		

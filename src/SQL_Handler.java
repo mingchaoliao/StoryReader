@@ -185,10 +185,10 @@ public class SQL_Handler {
 		return key;
 	}
 	
-	public static boolean validateRustKey(String key) throws SQLException {
-		return validateRustKey(key,0);
+	public static boolean validateRestKey(String key) throws SQLException {
+		return validateRestKey(key,0);
 	}
-	public static boolean validateRustKey(String key,int permission) throws SQLException {
+	public static boolean validateRestKey(String key,int permission) throws SQLException {
 		ResultSet re = executeQuery("select * from user where rustkey = '"+key+"';");
 		if(permission == 1) {
 			return re.next() && re.getString("username").equals("admin");

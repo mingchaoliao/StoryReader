@@ -60,7 +60,7 @@ public class Admin extends HttpServlet {
 		String menu = "<div class='list-group'>"
 				+ "<a href='index.html' class='list-group-item'>Home</a>"
 				+ "<a href='select.html' class='list-group-item'>Select Book</a>"
-				+ "<a href='storyRust' class='list-group-item'>Rust API</a>"
+				+ "<a href='storyRest' class='list-group-item'>Rest API</a>"
 				+ "</div>";
 		
 		marker.put("menu", menu);
